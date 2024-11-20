@@ -1,0 +1,86 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+using namespace std;
+
+// Encapsulation: Product Class
+class Product {
+private:
+    string productID;
+    int stock;
+    int daysToExpire;
+    double basePrice;
+
+public:
+    // Constructor
+    Product(string id, int qty, int days, double price)
+        : productID(id), stock(qty), daysToExpire(days), basePrice(price) {}
+
+    // Getter methods
+    string getProductID() { return productID; }
+    int getStock() { return stock; }
+    int getDaysToExpire() { return daysToExpire; }
+    double getBasePrice() { return basePrice; }
+};
+
+// Base Class: Discount
+class Discount {
+public:
+    virtual double calculateDiscount(Product product) = 0; // Polymorphism
+    virtual ~Discount() {}
+};
+
+// Derived Class: DynamicDiscount
+class DynamicDiscount : public Discount {
+public:
+    double calculateDiscount(Product product) override {
+        int days = product.getDaysToExpire();
+        double discount = (days <= 10) ? 0.5 : (days <= 30) ? 0.3 : 0.1;
+        return discount * product.getBasePrice();
+    }
+};
+
+// Reporting Class
+class Report {
+public:
+    static void generateReport(Product product, double discountedPrice, double discountPercent) {
+        cout << "===== Product Report =====\n";
+        cout << "Product ID      : " << product.getProductID() << endl;
+        cout << "Stock Available : " << product.getStock() << endl;
+        cout << "Days to Expire  : " << product.getDaysToExpire() << endl;
+        cout << "Base Price      : " << product.getBasePrice() << endl;
+        cout << "Discount Applied: " << discountPercent * 100 << "%" << endl;
+        cout << "Final Price     : " << discountedPrice << endl;
+        cout << "==========================\n";
+    }
+};
+
+int main() {
+    // User Input
+    string id;
+    int stock, daysToExpire;
+    double price;
+
+    cout << "Enter Product ID: ";
+    cin >> id;
+    cout << "Enter Stock Quantity: ";
+    cin >> stock;
+    cout << "Enter Days to Expire: ";
+    cin >> daysToExpire;
+    cout << "Enter Base Price: ";
+    cin >> price;
+
+    // Creating Product
+    Product product(id, stock, daysToExpire, price);
+
+    // Applying Discount
+    DynamicDiscount discountStrategy;
+    double discount = discountStrategy.calculateDiscount(product);
+    double finalPrice = product.getBasePrice() - discount;
+    double discountPercent = discount / product.getBasePrice();
+
+    // Generating Report
+    Report::generateReport(product, finalPrice, discountPercent);
+
+    return 0;
+}
